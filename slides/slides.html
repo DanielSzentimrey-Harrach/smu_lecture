@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spec-Driven Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f8fc;
+      --bg-2: #eef4fb;
+      --panel: rgba(255, 255, 255, 0.86);
+      --panel-strong: rgba(255, 255, 255, 0.95);
+      --text: #122033;
+      --muted: #4d627d;
+      --line: rgba(91, 121, 156, 0.22);
+      --accent: #2563eb;
+      --accent-2: #0ea5b7;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --stop: #b91c1c;
+      --stop-soft: rgba(185, 28, 28, 0.12);
+      --shadow: 0 1.375cqw 3.75cqw rgba(27, 47, 84, 0.16);
+      --radius: 1.75cqw;
+      --radius-sm: 1.125cqw;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(14, 165, 183, 0.14), transparent 26%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(91, 121, 156, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91, 121, 156, 0.06) 1px, transparent 1px);
+      background-size: 2cqw 2cqw;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.08));
+      opacity: 0.7;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2vmin;
+    }
+
+    .frame {
+      width: min(96vw, calc(96vh * 16 / 9));
+      aspect-ratio: 16 / 9;
+      position: relative;
+      border-radius: 2.125cqw;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(91, 121, 156, 0.18);
+      background: rgba(245, 248, 252, 0.9);
+      backdrop-filter: blur(10px);
+      container-type: inline-size;
+      container-name: frame;
+    }
+
+    .slides {
+      position: absolute;
+      inset: 0;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 3.25cqw 3.5cqw 5.25cqw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 160ms ease, transform 160ms ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5cqw;
+    }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 0.75cqw;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.875cqw;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 7cqw;
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 11ch;
+    }
+
+    h2 {
+      font-size: 4.3cqw;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      font-size: 1.5cqw;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin-top: 1cqw;
+      font-size: 1.625cqw;
+      line-height: 1.45;
+      color: var(--muted);
+      max-width: 26ch;
+    }
+
+    .meta {
+      margin-top: 1.75cqw;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.625cqw;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5cqw;
+      padding: 0.625cqw 0.875cqw;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 0.875cqw;
+      line-height: 1;
+      box-shadow: 0 0.625cqw 1.625cqw rgba(27, 47, 84, 0.08);
+    }
+
+    .mono {
+      font-family: var(--mono);
+    }
+
+    .surface {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 0.75cqw 2.25cqw rgba(27, 47, 84, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.75cqw;
+      align-items: end;
+    }
+
+    .title-slide {
+      height: 100%;
+    }
+
+    .title-slide .title-hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 1.75cqw;
+      align-items: center;
+      height: 100%;
+    }
+
+    .title-slide .title-stack {
+      max-width: 51.25cqw;
+      padding-right: 0;
+      align-self: center;
+    }
+
+    .title-slide .hero-visual {
+      min-height: 28.75cqw;
+      padding: 1.875cqw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1cqw;
+    }
+
+    .title-slide .hero-visual h2 {
+      font-size: 3.6cqw;
+      line-height: 1.05;
+    }
+
+    .title-slide .hero-visual .big-flow {
+      margin-top: 1.5cqw;
+      padding: 1.125cqw 1.25cqw;
+      gap: 0.75cqw;
+    }
+
+    .title-slide .hero-visual .flow-node {
+      min-width: 6.5cqw;
+      font-size: 1.063cqw;
+    }
+
+    .hero-visual {
+      min-height: 26.25cqw;
+      padding: 1.75cqw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-visual::before,
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(0);
+      pointer-events: none;
+    }
+
+    .hero-visual::before {
+      width: 16.25cqw;
+      height: 16.25cqw;
+      right: -1.875cqw;
+      top: -1.25cqw;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.22), transparent 70%);
+    }
+
+    .hero-visual::after {
+      width: 13.75cqw;
+      height: 13.75cqw;
+      left: -2.5cqw;
+      bottom: -3.125cqw;
+      background: radial-gradient(circle, rgba(14, 165, 183, 0.18), transparent 70%);
+    }
+
+    .title-stack {
+      max-width: 43.75cqw;
+      padding-right: 1.5cqw;
+    }
+
+    .caption {
+      font-size: 1.25cqw;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 120ch;
+    }
+
+    .big-flow {
+      margin-top: 1.75cqw;
+      display: flex;
+      align-items: center;
+      gap: 0.625cqw;
+      flex-wrap: wrap;
+      padding: 1.375cqw;
+    }
+
+    .flow-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 8.75cqw;
+      padding: 1cqw 1.25cqw;
+      border-radius: 1.125cqw;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      font-weight: 700;
+      font-size: 1.125cqw;
+      box-shadow: 0 0.5cqw 1.375cqw rgba(27, 47, 84, 0.07);
+    }
+
+    .flow-arrow {
+      color: var(--accent);
+      font-size: 1.25cqw;
+      font-weight: 700;
+    }
+
+    .keywords {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.125cqw;
+      margin-top: 2.125cqw;
+    }
+
+    .keyword-card {
+      padding: 1.375cqw 1.375cqw 1.5cqw;
+      border-radius: 1.5cqw;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      min-height: 8cqw;
+    }
+
+    .keyword-title {
+      font-weight: 700;
+      margin-bottom: 0.625cqw;
+      font-size: 2cqw;
+    }
+
+    .keyword-card p,
+    .bullet-list li,
+    .step-desc,
+    .note {
+      color: var(--muted);
+      font-size: 1.75cqw;
+      line-height: 1.45;
+    }
+
+    .vibe-layout {
+      align-items: stretch;
+    }
+
+    .vibe-keywords {
+      grid-template-columns: 1fr;
+      margin-top: 0;
+      align-content: start;
+    }
+
+    .loop-visual {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2.125cqw;
+      min-height: 0;
+    }
+
+    .loop-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 0.625cqw;
+      margin-top: 1.375cqw;
+    }
+
+    .loop-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.625cqw;
+      text-align: center;
+      padding: 1.25cqw 0.75cqw;
+      border-radius: 1.125cqw;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      box-shadow: 0 0.5cqw 1.375cqw rgba(27, 47, 84, 0.07);
+      font-size: 1.75cqw;
+      font-weight: 700;
+    }
+
+    .loop-index {
+      width: 1.625cqw;
+      height: 1.625cqw;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-size: 0.813cqw;
+      font-weight: 700;
+    }
+
+    .loop-arrow {
+      align-self: center;
+      color: var(--accent);
+      font-size: 1.375cqw;
+      font-weight: 800;
+    }
+
+    .loop-return {
+      position: relative;
+      height: 2.625cqw;
+      margin: 0.5cqw 2.75cqw 0;
+    }
+
+    .loop-return::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 100%;
+      border-left: 1px dashed var(--accent);
+      border-right: 1px dashed var(--accent);
+      border-bottom: 1px dashed var(--accent);
+      border-radius: 0 0 1.125cqw 1.125cqw;
+    }
+
+    .loop-return-arrow {
+      position: absolute;
+      left: -0.375cqw;
+      top: -0.063cqw;
+      width: 0;
+      height: 0;
+      border-left: 0.375cqw solid transparent;
+      border-right: 0.375cqw solid transparent;
+      border-bottom: 0.563cqw solid var(--accent);
+    }
+
+    .loop-return-label {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 1.75cqw;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-top: 0.625cqw;
+    }
+
+    .sdd-layout {
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: flex-start;
+    }
+
+    .sdd-diagram {
+      min-height: 28.75cqw;
+      padding: 1.125cqw 2.125cqw;
+      margin-right: 2.125cqw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sdd-flow {
+      display: grid;
+      grid-template-columns: auto 2.2cqw;
+      align-items: center;
+      justify-items: center;
+      margin-top: 0.75cqw;
+    }
+
+    .sdd-flow > * {
+      grid-column: 1;
+    }
+
+    .sdd-flow > .sdd-loop {
+      grid-column: 2;
+      justify-self: stretch;
+    }
+
+    .sdd-node {
+      position: relative;
+      min-width: 7.5cqw;
+      padding: 0.55cqw 1.1cqw;
+      border-radius: 0.75cqw;
+      background: linear-gradient(180deg, var(--accent), #1d4ed8);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1cqw;
+      text-align: center;
+      box-shadow: 0 0.5cqw 1.125cqw rgba(37, 99, 235, 0.28);
+    }
+
+    .sdd-node-final {
+      background: linear-gradient(180deg, var(--accent-2), #0b8a9a);
+      box-shadow: 0 0.5cqw 1.125cqw rgba(14, 165, 183, 0.3);
+    }
+
+    .sdd-rules-branch {
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5cqw;
+      padding-right: 0.6cqw;
+      white-space: nowrap;
+    }
+
+    .sdd-rules-branch .sdd-node {
+      min-width: 6.75cqw;
+      background: linear-gradient(180deg, #4b7bec, var(--accent));
+    }
+
+    .sdd-harrow {
+      display: block;
+      width: 0.9cqw;
+      height: 2px;
+      background: var(--accent);
+      position: relative;
+      flex: none;
+    }
+
+    .sdd-harrow::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -1px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 0.3cqw solid transparent;
+      border-bottom: 0.3cqw solid transparent;
+      border-left: 0.42cqw solid var(--accent);
+    }
+
+    .sdd-varrow {
+      width: 2px;
+      height: 1.2cqw;
+      background: var(--accent);
+      position: relative;
+    }
+
+    .sdd-varrow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 0.375cqw solid transparent;
+      border-right: 0.375cqw solid transparent;
+      border-top: 0.5cqw solid var(--accent);
+    }
+
+    .sdd-diamond-wrap {
+      position: relative;
+      width: 3.9cqw;
+      height: 3.9cqw;
+    }
+
+    .sdd-diamond {
+      position: absolute;
+      top: 16%;
+      left: 16%;
+      width: 68%;
+      height: 68%;
+      transform: rotate(45deg);
+      border-radius: 0.6cqw;
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      box-shadow: 0 0.5cqw 1.125cqw rgba(37, 99, 235, 0.28);
+      display: grid;
+      place-items: center;
+    }
+
+    .sdd-diamond span {
+      transform: rotate(-45deg);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.7cqw;
+    }
+
+    .sdd-loop {
+      position: relative;
+      height: 100%;
+      align-self: stretch;
+    }
+
+    /* horizontal stub touching the target node's center-right edge */
+    .sdd-loop-top {
+      position: absolute;
+      top: 1.15cqw;
+      left: 0;
+      width: 1.6cqw;
+      height: 2px;
+      background: var(--stop);
+      transform: translateY(-1px) translateX(2px);
+    }
+
+    /* vertical rail connecting the two stubs */
+    .sdd-loop-rail {
+      position: absolute;
+      top: 1.15cqw;
+      bottom: 1.95cqw;
+      left: 1.6cqw;
+      width: 2px;
+      background: var(--stop);
+    }
+
+    /* horizontal stub reaching into the check diamond's center-right point */
+    .sdd-loop-bottom {
+      position: absolute;
+      bottom: 1.95cqw;
+      left: -1.8cqw;
+      width: 3.4cqw;
+      height: 2px;
+      background: var(--stop);
+      transform: translateY(1px);
+    }
+
+    .sdd-loop-arrow {
+      position: absolute;
+      top: 1.15cqw;
+      left: 0;
+      transform: translate(-10%, -50%);
+      width: 0;
+      height: 0;
+      border-top: 0.32cqw solid transparent;
+      border-bottom: 0.32cqw solid transparent;
+      border-right: 0.45cqw solid var(--stop);
+    }
+
+    .sdd-points {
+      list-style: none;
+      margin: 2.125cqw 0 0;
+      padding: 0;
+      display: grid;
+      gap: 1.875cqw;
+      text-align: left;
+      justify-items: start;
+    }
+
+    .sdd-points li {
+      font-size: 1.875cqw;
+      line-height: 1.28;
+      font-weight: 300;
+      color: var(--text);
+      padding-left: 1.625cqw;
+      position: relative;
+    }
+
+    .sdd-points li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.8cqw;
+      width: 0.75cqw;
+      height: 0.75cqw;
+      border-radius: 0.25cqw;
+      background: var(--accent-2);
+    }
+
+    .cards-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.375cqw;
+      margin-top: 5cqw;
+    }
+
+    .card {
+      padding: 1.75cqw;
+      border-radius: 1.75cqw;
+      min-height: 20cqw;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5cqw;
+    }
+
+    .card .icon {
+      width: 3.375cqw;
+      height: 3.375cqw;
+      border-radius: 1cqw;
+      display: grid;
+      place-items: center;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      font-size: 1.375cqw;
+      font-weight: 700;
+    }
+
+    .card h3 {
+      font-size: 3cqw;
+    }
+
+    .card .bullet-list li {
+      font-size: 1.875cqw;
+      line-height: 1.4;
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 1.25cqw;
+      display: grid;
+      gap: 1.5cqw;
+    }
+
+    .card li::marker {
+      color: var(--accent);
+    }
+
+    .timeline {
+      margin-top: 2.125cqw;
+      padding: 1.75cqw;
+      display: grid;
+      gap: 3cqw;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 20cqw 1fr;
+      gap: 1.375cqw;
+      align-items: center;
+    }
+
+    .timeline-label {
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.813cqw;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .workflow {
+      display: grid;
+      gap: 1cqw;
+    }
+
+    .workflow-track {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75cqw;
+      align-items: stretch;
+    }
+
+    .workflow-step {
+      flex: 1 1 0;
+      min-width: 8.75cqw;
+      padding: 1cqw 1cqw 1.125cqw;
+      border-radius: 1.25cqw;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      position: relative;
+      box-shadow: 0 0.5cqw 1.375cqw rgba(27, 47, 84, 0.06);
+    }
+
+    .workflow-step::after {
+      content: "→";
+      position: absolute;
+      right: -0.9cqw;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1.125cqw;
+    }
+
+    .workflow-step:last-child::after {
+      display: none;
+    }
+
+    .workflow-step strong {
+      display: block;
+      font-size: 1.125cqw;
+      line-height: 1.15;
+      margin-bottom: 0.625cqw;
+    }
+
+    .workflow-step .step-desc {
+      font-size: 0.938cqw;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .workflow-step.primary {
+      border-color: rgba(37, 99, 235, 0.3);
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.96));
+    }
+
+    .workflow-step.stop {
+      border-color: rgba(185, 28, 28, 0.35);
+      background: linear-gradient(180deg, rgba(185, 28, 28, 0.08), rgba(255, 255, 255, 0.97));
+      box-shadow: 0 10px 24px rgba(185, 28, 28, 0.08);
+    }
+
+    .stop-badge {
+      position: absolute;
+      top: -0.7cqw;
+      left: 50%;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375cqw;
+      padding: 0.375cqw 0.625cqw;
+      border-radius: 999px;
+      background: var(--stop);
+      color: #fff;
+      font-size: 0.688cqw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      box-shadow: 0 0.375cqw 0.75cqw rgba(185, 28, 28, 0.35);
+      z-index: 2;
+    }
+
+    .stop-badge::before {
+      content: "⛔";
+      font-size: 0.75cqw;
+      line-height: 1;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.625cqw;
+      flex-wrap: wrap;
+      margin-bottom: 1cqw;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5cqw 0.75cqw;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.18);
+      font-size: 0.75cqw;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge.secondary {
+      background: rgba(14, 165, 183, 0.1);
+      color: #0f766e;
+      border-color: rgba(14, 165, 183, 0.18);
+    }
+
+    .demo-band {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.25cqw;
+      margin-top: 1.625cqw;
+      align-items: stretch;
+    }
+
+    .demo-note,
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.875cqw;
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1cqw;
+      margin-top: 1.25cqw;
+    }
+
+    .footer-note .mono {
+      color: var(--accent);
+    }
+
+    .slide[data-title="Demo workflow"] > div {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .slide[data-title="Demo workflow"] .footer-note {
+      margin-top: auto;
+      padding-top: 2.5cqw;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .footer-nav {
+      position: absolute;
+      left: 1.75cqw;
+      right: 1.75cqw;
+      bottom: 1.25cqw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75cqw;
+      pointer-events: none;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 0.625cqw;
+      pointer-events: auto;
+    }
+
+    button {
+      font: inherit;
+      border: none;
+      cursor: pointer;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5cqw;
+      padding: 0.75cqw 1cqw;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: 0 0.625cqw 1.5cqw rgba(27, 47, 84, 0.08);
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37, 99, 235, 0.3);
+      box-shadow: 0 0.75cqw 1.75cqw rgba(27, 47, 84, 0.12);
+    }
+
+    .nav-btn:active {
+      transform: translateY(0);
+    }
+
+    .counter {
+      font-family: var(--mono);
+      font-size: 0.813cqw;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.82);
+      padding: 0.625cqw 0.875cqw;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      box-shadow: 0 0.625cqw 1.5cqw rgba(27, 47, 84, 0.06);
+    }
+
+    .progress {
+      display: flex;
+      gap: 0.375cqw;
+      align-items: center;
+      pointer-events: auto;
+      padding: 0.625cqw 0.75cqw;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      box-shadow: 0 0.625cqw 1.5cqw rgba(27, 47, 84, 0.06);
+    }
+
+    .dot {
+      width: 0.625cqw;
+      height: 0.625cqw;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(37, 99, 235, 0.18);
+      padding: 0;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      transform: scale(1.18);
+    }
+
+    .dot:hover {
+      transform: scale(1.18);
+    }
+
+    .overview {
+      position: absolute;
+      inset: 0;
+      background: rgba(245, 248, 252, 0.96);
+      backdrop-filter: blur(10px);
+      display: none;
+      padding: 1.75cqw;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1cqw;
+      overflow: auto;
+    }
+
+    .overview.show {
+      display: grid;
+    }
+
+    .overview-card {
+      min-height: 8cqw;
+      padding: 1cqw;
+      border-radius: 1.25cqw;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0.625cqw 1.5cqw rgba(27, 47, 84, 0.08);
+    }
+
+    .overview-card.active {
+      border-color: rgba(37, 99, 235, 0.36);
+      box-shadow: 0 0 0 0.1875cqw rgba(37, 99, 235, 0.12), 0 0.75cqw 1.75cqw rgba(27, 47, 84, 0.1);
+    }
+
+    .overview-card .small {
+      margin-top: 0.5cqw;
+      color: var(--muted);
+      font-size: 0.813cqw;
+      line-height: 1.45;
+    }
+
+    .overview-top {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1cqw;
+      margin-bottom: 0.25cqw;
+    }
+
+    .overview-top p {
+      color: var(--muted);
+      font-size: 0.875cqw;
+    }
+
+    .phase-title {
+      margin-bottom: 0.875cqw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.875cqw;
+    }
+
+    .phase-title p {
+      color: var(--muted);
+      font-size: 0.875cqw;
+      line-height: 1.45;
+    }
+
+    .small-flow {
+      gap: 0.75cqw;
+    }
+
+    .small-flow .workflow-step {
+      min-width: 6.25cqw;
+      padding: 0.75cqw 0.75cqw 0.813cqw;
+      border-radius: 1cqw;
+    }
+
+    .small-flow .workflow-step strong {
+      font-size: 0.813cqw;
+      margin-bottom: 0.375cqw;
+    }
+
+    .small-flow .workflow-step .step-desc {
+      font-size: 0.75cqw;
+      line-height: 1.35;
+    }
+
+    .detail-list {
+      margin: 1.125cqw 0 0;
+      padding-left: 1.125cqw;
+      display: grid;
+      gap: 0.625cqw;
+      max-width: 58ch;
+    }
+
+    .detail-list li::marker {
+      color: var(--accent);
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1cqw;
+      margin-top: 1.625cqw;
+    }
+
+    .split-panel {
+      padding: 1.125cqw 1.375cqw;
+      border-radius: 1.5cqw;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      min-height: 0;
+    }
+
+    .split-panel h3 {
+      margin-bottom: 0.75cqw;
+    }
+
+    .split-panel p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .accent-bar {
+      width: 5.25cqw;
+      height: 0.375cqw;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      margin-bottom: 1.125cqw;
+    }
+
+    .streamline {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1cqw;
+      margin-top: 1.25cqw;
+    }
+
+    .callout {
+      padding: 0.875cqw 1cqw;
+      border-radius: 1cqw;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      background: rgba(37, 99, 235, 0.08);
+      color: #1742a2;
+      font-weight: 600;
+      font-size: 0.875cqw;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.625cqw;
+      width: fit-content;
+    }
+
+    .callout::before {
+      content: "✓";
+      font-size: 0.875cqw;
+      line-height: 1;
+    }
+
+    .slide-surface {
+      padding: 1.5cqw;
+      border-radius: 1.625cqw;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    @media (max-width: 1100px) {
+      .slide {
+        padding: 2.5cqw 2.125cqw 5.125cqw;
+      }
+
+      .two-col,
+      .demo-band,
+      .split-grid,
+      .cards-3,
+      .keywords {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-row {
+        grid-template-columns: 1fr;
+      }
+
+      .frame {
+        width: 100vw;
+        height: 100vh;
+        aspect-ratio: auto;
+        border-radius: 0;
+      }
+
+      .workflow-step::after {
+        display: none;
+      }
+
+      .overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .slide[data-title="Title"] h2 {
+      max-width: 20ch;
+    }
+
+    .slide[data-title="Title"] .subtitle {
+      max-width: 32ch;
+    }
+
+    .slide[data-title="Failure pattern"] .timeline-row {
+      position: relative;
+    }
+
+    .slide[data-title="Failure pattern"] .timeline-label {
+      font-size: 2.5cqw;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .slide[data-title="Failure pattern"] .timeline-row:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: calc(10cqw + 0.688cqw + 50%);
+      bottom: -2.313cqw;
+      width: 0;
+      height: 0;
+      border-left: 1.125cqw solid transparent;
+      border-right: 1.125cqw solid transparent;
+      border-top: 1.5cqw solid var(--accent-2);
+      transform: translateX(-50%);
+    }
+
+    @media (max-width: 1100px) {
+      .slide[data-title="Failure pattern"] .timeline-row:not(:last-child)::after {
+        left: 50%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="deck" id="deck">
+    <div class="frame" id="frame" aria-label="Spec-Driven Development slide deck">
+      <div class="slides" id="slides">
+        <section class="slide active" data-title="Title">
+          <div class="title-slide">
+            <div class="title-hero two-col">
+              <div class="title-stack">
+                <div class="kicker">SMU guest lecture by Morgan Stanley</div>
+                <h1>Spec-Driven Development</h1>
+                <p class="subtitle">How enterprises keep AI-generated code fast, secure, and maintainable</p>
+                <div class="meta">
+                  <span class="pill"><span class="mono">Daniel M. Szentimrey-Harrach</span></span>
+                </div>
+              </div>
+              <div class="surface hero-visual">
+                <div class="kicker">Core idea</div>
+                <h2 style="max-width: 14ch;">Spec first.<br/>Code second.</h2>
+                <p class="caption" style="margin-top: 1.125cqw;">A system for making AI-assisted development predictable
+                  enough for real teams, not just demos.</p>
+                <div class="big-flow">
+                  <div class="flow-node">Spec</div>
+                  <div class="flow-arrow">→</div>
+                  <div class="flow-node">Plan</div>
+                  <div class="flow-arrow">→</div>
+                  <div class="flow-node">Tasks</div>
+                  <div class="flow-arrow">→</div>
+                  <div class="flow-node">Code</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Vibe Coding">
+          <div>
+            <div class="kicker">Slide 2</div>
+            <h2>What is vibe coding?</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Writing software by prompting an AI
+              conversationally and iterating based on whether the output feels right, with little or no upfront
+              specification or verification.</p>
+            <div class="two-col vibe-layout" style="margin-top: 1.75cqw;">
+              <div class="surface loop-visual">
+                <div class="keyword-title">The typical loop</div>
+                <div class="loop-row">
+                  <div class="loop-node"><span class="loop-index">1</span><strong>Prompt</strong></div>
+                  <div class="loop-arrow">→</div>
+                  <div class="loop-node"><span class="loop-index">2</span><strong>Generate</strong></div>
+                  <div class="loop-arrow">→</div>
+                  <div class="loop-node"><span class="loop-index">3</span><strong>Check</strong></div>
+                </div>
+                <div class="loop-return"><span class="loop-return-arrow" aria-hidden="true"></span></div>
+                <div class="loop-return-label">↻ Repeat — back to Prompt</div>
+              </div>
+              <div class="keywords vibe-keywords">
+                <div class="keyword-card">
+                  <div class="keyword-title">What is missing</div>
+                  <p>No explicit requirements, no architecture plan, no systematic review</p>
+                </div>
+                <div class="keyword-card">
+                  <div class="keyword-title">How it succeeds</div>
+                  <p>“It runs” or “it looks right” becomes the only acceptance test</p>
+                </div>
+                <div class="keyword-card">
+                  <div class="keyword-title">Why it matters</div>
+                  <p>Fast for tiny experiments, fragile when the code has to survive contact with a team</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Why it breaks">
+          <div>
+            <div class="kicker">Slide 3</div>
+            <h2>Fine for a prototype.<br />Risky at enterprise scale.</h2>
+            <div class="cards-3">
+              <div class="card">
+                <h3>Quality</h3>
+                <ul class="bullet-list">
+                  <li>Inconsistent logic across sessions</li>
+                  <li>No traceability to requirements</li>
+                  <li>Edge cases go untested</li>
+                  <li>Regressions come back later</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Security</h3>
+                <ul class="bullet-list">
+                  <li>Secrets checks are not systematic</li>
+                  <li>Vulnerable dependencies slip in</li>
+                  <li>Injection risks go unnoticed</li>
+                  <li>Insecure defaults survive review</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Maintainability</h3>
+                <ul class="bullet-list">
+                  <li>Decisions are undocumented</li>
+                  <li>Nobody can safely extend the code</li>
+                  <li>Architecture drifts with each prompt</li>
+                  <li>Context gets lost between sessions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Failure pattern">
+          <div>
+            <div class="kicker">Slide 4</div>
+            <h2>It works in the demo.<br />It breaks in production.</h2>
+            <div class="timeline surface">
+              <div class="timeline-row">
+                <div class="timeline-label">Day 1</div>
+                <div class="keyword-card" style="margin: 0;">
+                  <div class="keyword-title">Prompted fast</div>
+                  <p>Someone asks an AI to build the feature and the first version looks impressive.</p>
+                </div>
+              </div>
+              <div class="timeline-row">
+                <div class="timeline-label">Demo</div>
+                <div class="keyword-card" style="margin: 0;">
+                  <div class="keyword-title">Ships anyway</div>
+                  <p>The team trusts the demo, not the missing spec, and the feature goes live.</p>
+                </div>
+              </div>
+              <div class="timeline-row">
+                <div class="timeline-label">Weeks later</div>
+                <div class="keyword-card" style="margin: 0;">
+                  <div class="keyword-title">Reality shows up</div>
+                  <p>An edge case fails, a security scan flags a hardcoded secret, or a teammate cannot safely modify
+                    the code because the reasons were never recorded.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Spec-driven development">
+          <div>
+            <div class="kicker">Slide 5</div>
+            <h2>What is spec-driven development?</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Spec-driven development treats the
+              specification as the source of truth. Code is a derived, regenerable artifact from that spec, not the
+              thing that defines the project.</p>
+            <div class="two-col sdd-layout" style="margin-top: 2.25cqw;">
+              <div class="surface sdd-diagram">
+                <div class="keyword-title">The SDD loop</div>
+                <div class="sdd-flow">
+                  <div class="sdd-node" style="grid-row: 1;">
+                    <div class="sdd-rules-branch">
+                      <span class="sdd-node">Rules &amp; Memory</span>
+                      <span class="sdd-harrow"></span>
+                    </div>
+                    Prompt
+                  </div>
+                  <div class="sdd-varrow" style="grid-row: 2;"></div>
+                  <div class="sdd-node" style="grid-row: 3;">Spec</div>
+                  <div class="sdd-varrow" style="grid-row: 4;"></div>
+                  <div class="sdd-diamond-wrap" style="grid-row: 5;">
+                    <div class="sdd-diamond"><span>Check</span></div>
+                  </div>
+                  <div class="sdd-loop" style="grid-row: 1 / 6;">
+                    <div class="sdd-loop-top"></div>
+                    <div class="sdd-loop-rail"></div>
+                    <div class="sdd-loop-bottom"></div>
+                    <div class="sdd-loop-arrow"></div>
+                  </div>
+                  <div class="sdd-varrow" style="grid-row: 6;"></div>
+                  <div class="sdd-node" style="grid-row: 7;">Plan</div>
+                  <div class="sdd-varrow" style="grid-row: 8;"></div>
+                  <div class="sdd-diamond-wrap" style="grid-row: 9;">
+                    <div class="sdd-diamond"><span>Check</span></div>
+                  </div>
+                  <div class="sdd-loop" style="grid-row: 7 / 10;">
+                    <div class="sdd-loop-top"></div>
+                    <div class="sdd-loop-rail"></div>
+                    <div class="sdd-loop-bottom"></div>
+                    <div class="sdd-loop-arrow"></div>
+                  </div>
+                  <div class="sdd-varrow" style="grid-row: 10;"></div>
+                  <div class="sdd-node sdd-node-final" style="grid-row: 11;">Implement</div>
+                </div>
+              </div>
+              <ul class="sdd-points">
+                <li>Specs are reviewed and versioned like code</li>
+                <li>AI implements against a spec, not instead of one</li>
+                <li>Every line of code maps back to a requirement</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Enterprise workflow">
+          <div>
+            <div class="kicker">Slide 6</div>
+            <h2>A full enterprise SDD workflow</h2>
+            <div class="split-grid">
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div>
+                    <div class="badge">Planning</div>
+                    <p style="margin-top: 0.75cqw;">Create the spec, examine the issue tracker, and stop for human
+                      review before implementation begins.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="planning"></div>
+              </div>
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div>
+                    <div class="badge secondary">Implementation</div>
+                    <p style="margin-top: 0.75cqw;">Test first, implement second, then review the code and run checks
+                      before delivery.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="implementation"></div>
+              </div>
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div>
+                    <div class="badge">Delivery</div>
+                    <p style="margin-top: 0.75cqw;">Reconcile the final branch against the spec, update
+                      constitution memory if needed, and complete the merge/PR cycle.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="delivery"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Addresses each pillar">
+          <div>
+            <div class="kicker">Slide 7</div>
+            <h2>SDD addresses quality, security, and maintainability.</h2>
+            <div class="cards-3">
+              <div class="card">
+                <h3>Quality</h3>
+                <ul class="bullet-list">
+                  <li>Specs and task breakdown happen before code is trusted</li>
+                  <li>Review gates catch missing requirements early</li>
+                  <li>Failures are visible before the branch is merged</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Security</h3>
+                <ul class="bullet-list">
+                  <li>Governance and scanning are built into the pipeline</li>
+                  <li>Security checks are not a last-minute add-on</li>
+                  <li>Risk is managed continuously, not guessed later</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Maintainability</h3>
+                <ul class="bullet-list">
+                  <li>The spec and plan persist as living documentation</li>
+                  <li>The project memory keeps decisions consistent</li>
+                  <li>Future changes have a record of why things exist</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Demo workflow">
+          <div>
+            <div class="kicker">Slide 8</div>
+            <h2>Today's demo - a scoped-down version</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">The demo keeps the same core idea, but
+              removes the enterprise scaffolding: no issue tracker, no PR or CI pipeline, and everything stays local.
+            </p>
+            <div class="surface timeline" style="margin-top: 1.5cqw;">
+              <div class="workflow-track" data-workflow="demo"></div>
+            </div>
+            <div class="footer-note">
+              <span class="mono">Live demo - Java, VS Code, Superpowers</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="overview" id="overview" aria-hidden="true"></div>
+
+
+    </div>
+    <div class="footer-nav">
+      <div class="nav-group">
+        <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous slide">← Prev</button>
+        <button class="nav-btn" id="nextBtn" type="button" aria-label="Next slide">Next →</button>
+      </div>
+      <div class="progress" id="progress" aria-label="Slide navigation"></div>
+      <div class="counter" id="counter">1 / 8</div>
+    </div>
+  </div>
+
+  <script>
+    const workflowDefinitions = {
+      planning: [
+        { title: "Create Feature", desc: "AI tasked to create the initial feature description." },
+        { title: "Read Issue Tracker", desc: "Fetch relevant details from the issue tracker." },
+        { title: "Gap Analysis", desc: "Ask the user clarifying questions.", stop: true},
+        { title: "Plan", desc: "Generate the formal spec and implementation plan." },
+        { title: "Tasks", desc: "Break the plan into discrete, actionable tasks." },
+        { title: "Review", desc: "Human review stops the flow before code is written.", stop: true }
+      ],
+      implementation: [
+        { title: "Create Unit Tests", desc: "Generate tests from the spec before implementation begins." },
+        { title: "Implement", desc: "Generate code against the approved spec, plan, and tasks." },
+        { title: "Code Review", desc: "An authorized human reviewer checks the code.", stop: true },
+        { title: "Run Unit Tests", desc: "All tests pass and coverage meets the threshold." },
+        { title: "Governance", desc: "Run static analysis, dependency scans, and secrets detection." }
+      ],
+      delivery: [
+        { title: "Reconcile", desc: "Human review aligns the code with the spec and artifacts.", stop: true },
+        { title: "Constitution", desc: "Update project memory if standing decisions changed." },
+        { title: "Merge", desc: "Merge the feature branch into main." },
+        { title: "Create PR", desc: "Open the pull request." },
+        { title: "Monitor Build", desc: "CI/CD runs checks on the branch." },
+        { title: "Merge PR / Address Comments", desc: "Resolve feedback, then merge to remote main." }
+      ],
+      demo: [
+        { title: "Project Setup", desc: "Local project already has constitution memory." },
+        { title: "Explain Features", desc: "Describe the basic feature to build." },
+        { title: "Spec", desc: "Generate the specification." },
+        { title: "Plan", desc: "Generate the implementation plan." },
+        { title: "Tasks", desc: "Break the plan into tasks." },
+        { title: "Write Failing Unit Tests", desc: "Generate tests first and confirm they fail." },
+        { title: "Implement", desc: "Generate the code." },
+        { title: "Verify", desc: "Run the unit tests and confirm they pass." }
+      ]
+    };
+
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const overview = document.getElementById('overview');
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let current = 0;
+    let overviewOpen = false;
+
+    function renderWorkflow(container, items) {
+      container.innerHTML = '';
+      items.forEach((item, index) => {
+        const step = document.createElement('div');
+        step.className = `workflow-step ${item.stop ? 'stop' : 'primary'}`.trim();
+        step.innerHTML = `
+          ${item.stop ? '<span class="stop-badge">Human stop</span>' : ''}
+          <strong>${index + 1}. ${item.title}</strong>
+          <div class="step-desc">${item.desc}</div>
+        `;
+        container.appendChild(step);
+      });
+    }
+
+    function buildWorkflows() {
+      document.querySelectorAll('[data-workflow]').forEach((node) => {
+        const key = node.getAttribute('data-workflow');
+        const items = workflowDefinitions[key];
+        if (items) {
+          renderWorkflow(node, items);
+        }
+      });
+    }
+
+    function buildProgress() {
+      progress.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot';
+        dot.type = 'button';
+        dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+        dot.addEventListener('click', () => showSlide(index));
+        progress.appendChild(dot);
+      });
+    }
+
+    function buildOverview() {
+      overview.innerHTML = '';
+      const top = document.createElement('div');
+      top.className = 'overview-top';
+      top.innerHTML = '<div><div class="kicker" style="margin-bottom: 0.5cqw;">Overview</div><p>Press Esc to close. Click any card to jump to a slide.</p></div><button class="nav-btn" type="button" id="closeOverview">Close</button>';
+      overview.appendChild(top);
+      slides.forEach((slide, index) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'overview-card';
+        card.innerHTML = `<div class="kicker" style="margin-bottom: 0.5cqw;">${index + 1}</div><h3>${slide.dataset.title || `Slide ${index + 1}`}</h3><div class="small">Jump to this slide</div>`;
+        card.addEventListener('click', () => {
+          showSlide(index);
+          toggleOverview(false);
+        });
+        overview.appendChild(card);
+      });
+      overview.querySelector('#closeOverview').addEventListener('click', () => toggleOverview(false));
+    }
+
+    function updateOverviewHighlight() {
+      Array.from(overview.querySelectorAll('.overview-card')).forEach((card, index) => {
+        card.classList.toggle('active', index === current);
+      });
+    }
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      Array.from(progress.children).forEach((dot, i) => dot.classList.toggle('active', i === current));
+      if (overviewOpen) updateOverviewHighlight();
+    }
+
+    function toggleOverview(force) {
+      overviewOpen = typeof force === 'boolean' ? force : !overviewOpen;
+      overview.classList.toggle('show', overviewOpen);
+      overview.setAttribute('aria-hidden', String(!overviewOpen));
+      if (overviewOpen) updateOverviewHighlight();
+    }
+
+    prevBtn.addEventListener('click', () => showSlide(current - 1));
+    nextBtn.addEventListener('click', () => showSlide(current + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        toggleOverview(false);
+        return;
+      }
+      if (overviewOpen) return;
+      if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'PageDown') {
+        event.preventDefault();
+        showSlide(current + 1);
+      } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        showSlide(current - 1);
+      } else if (/^[1-9]$/.test(event.key)) {
+        event.preventDefault();
+        showSlide(Number(event.key) - 1);
+      } else if (event.key === '0') {
+        event.preventDefault();
+        showSlide(9);
+      } else if (event.key.toLowerCase() === 'o') {
+        toggleOverview();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!overviewOpen) return;
+      const insideFrame = event.target.closest && event.target.closest('#overview, #progress, #prevBtn, #nextBtn');
+      if (!insideFrame) {
+        toggleOverview(false);
+      }
+    });
+
+    buildWorkflows();
+    buildProgress();
+    buildOverview();
+    showSlide(0);
+  </script>
+</body>
+
+</html>
