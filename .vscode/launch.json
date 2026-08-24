@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CalculatorApp",
+      "type": "java",
+      "request": "launch",
+      "mainClass": "com.calculator.CalculatorApp",
+      "projectName": "demo",
+      "cwd": "${workspaceFolder}/src/demo",
+      "console": "integratedTerminal",
+      "jdkPath": "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.4.101-hotspot"
+    }
+  ]
+}
