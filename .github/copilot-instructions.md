@@ -145,7 +145,7 @@ Any AI agent operating in this repository — including GitHub Copilot in agent 
 
 | Concern            | Choice                                                  |
 |---------------------|----------------------------------------------------------|
-| Language            | Java 25                                                  |
+| Language            | Java 21                                                  |
 | UI Toolkit          | Java Swing (`javax.swing`, `java.awt`) — no third-party UI libraries |
 | Build tool          | Maven                                                    |
 | Test framework      | JUnit 5 (JUnit Jupiter)                                  |
@@ -156,12 +156,12 @@ Any AI agent operating in this repository — including GitHub Copilot in agent 
 
 ### 4.1 Java Version Notes
 
-The project targets **Java 25**. Because this is a recent release, contributors and AI agents must:
-- Set `<maven.compiler.release>25</maven.compiler.release>` in `pom.xml` rather than separate source/target
+The project targets **Java 21**. Because this is a recent release, contributors and AI agents must:
+- Set `<maven.compiler.release>21</maven.compiler.release>` in `pom.xml` rather than separate source/target
   properties.
 - Not assume the availability of preview features unless explicitly enabled and documented — do not use
   `--enable-preview` features in production code without an amendment to this constitution.
-- Verify locally that a Java 25 JDK is installed and `JAVA_HOME` points to it before building.
+- Verify locally that a Java 21 JDK is installed and `JAVA_HOME` points to it before building.
 
 ---
 
