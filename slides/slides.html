@@ -1531,8 +1531,8 @@
       implementation: [
         { title: "Create Unit Tests", desc: "Generate tests from the spec before implementation begins." },
         { title: "Implement", desc: "Generate code against the approved spec, plan, and tasks." },
-        { title: "Code Review", desc: "An authorized human reviewer checks the code.", stop: true },
         { title: "Run Unit Tests", desc: "All tests pass and coverage meets the threshold." },
+        { title: "Code Review", desc: "An authorized human reviewer checks the code.", stop: true },
         { title: "Governance", desc: "Run static analysis, dependency scans, and secrets detection." }
       ],
       delivery: [
@@ -1564,14 +1564,14 @@
     let current = 0;
     let overviewOpen = false;
 
-    function renderWorkflow(container, items) {
+    function renderWorkflow(container, items, startingNumber = 1) {
       container.innerHTML = '';
       items.forEach((item, index) => {
         const step = document.createElement('div');
         step.className = `workflow-step ${item.stop ? 'stop' : 'primary'}`.trim();
         step.innerHTML = `
           ${item.stop ? '<span class="stop-badge">Human stop</span>' : ''}
-          <strong>${index + 1}. ${item.title}</strong>
+          <strong>${startingNumber + index}. ${item.title}</strong>
           <div class="step-desc">${item.desc}</div>
         `;
         container.appendChild(step);
@@ -1579,11 +1579,17 @@
     }
 
     function buildWorkflows() {
+      const workflowStartingNumbers = {
+        planning: 1,
+        implementation: 7,
+        delivery: 12
+      };
+
       document.querySelectorAll('[data-workflow]').forEach((node) => {
         const key = node.getAttribute('data-workflow');
         const items = workflowDefinitions[key];
         if (items) {
-          renderWorkflow(node, items);
+          renderWorkflow(node, items, workflowStartingNumbers[key]);
         }
       });
     }
