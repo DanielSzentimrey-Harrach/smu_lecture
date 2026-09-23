@@ -22,6 +22,8 @@
       --accent: #2563eb;
       --accent-2: #0ea5b7;
       --accent-soft: rgba(37, 99, 235, 0.12);
+      --accent-3: #7c3aed;
+      --accent-3-soft: rgba(124, 58, 237, 0.14);
       --stop: #b91c1c;
       --stop-soft: rgba(185, 28, 28, 0.12);
       --shadow: 0 1.375cqw 3.75cqw rgba(27, 47, 84, 0.16);
@@ -62,6 +64,20 @@
       background-size: 2cqw 2cqw;
       mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.08));
       opacity: 0.7;
+    }
+
+    /* Part 2 uses the same wash recipe as body's default background (two radial
+       accents over a light linear base), hue-shifted from blue/teal to violet/blue
+       so the section change reads at a glance without breaking the deck's tone. */
+    .slide.part2 {
+      background:
+        radial-gradient(circle at top left, var(--accent-3-soft), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.14), transparent 26%),
+        linear-gradient(180deg, #f7f5fc, #efeafb);
+    }
+
+    .slide.part2 .kicker {
+      color: var(--accent-3);
     }
 
     .deck {
@@ -663,6 +679,118 @@
       background: var(--accent-2);
     }
 
+    .key-points {
+      margin-top: 0;
+      gap: 1cqw;
+    }
+
+    .key-points li {
+      font-size: 1.05cqw;
+      line-height: 1.5;
+      font-weight: 400;
+      color: var(--muted);
+      padding-left: 1.125cqw;
+    }
+
+    .key-points li::before {
+      top: 0.45cqw;
+      width: 0.5cqw;
+      height: 0.5cqw;
+    }
+
+    .auth-flow {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 0.5cqw;
+      padding: 0.5cqw 0;
+      overflow: hidden;
+    }
+
+    .auth-flow .flow-node {
+      min-width: 0;
+      flex: 0 1 auto;
+      flex-direction: column;
+      gap: 0.2cqw;
+      padding: 0.75cqw 0.9cqw;
+      font-size: 0.9cqw;
+      font-weight: 600;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .auth-flow .flow-node-sub {
+      font-weight: 400;
+    }
+
+    .auth-flow .flow-arrow {
+      flex: none;
+      font-size: 1cqw;
+    }
+
+    .auth-flow .gate-node {
+      background: rgba(14, 165, 183, 0.14);
+      border-color: rgba(14, 165, 183, 0.4);
+      color: #0f766e;
+    }
+
+    .auth-flow .flagged-node {
+      background: var(--stop-soft);
+      border-color: rgba(185, 28, 28, 0.35);
+      color: var(--stop);
+    }
+
+    .auth-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5cqw;
+      margin-top: 0.875cqw;
+      font-size: 0.9cqw;
+      color: var(--muted);
+    }
+
+    .auth-legend .swatch {
+      display: inline-block;
+      width: 0.7cqw;
+      height: 0.7cqw;
+      border-radius: 0.15cqw;
+      margin-right: 0.4cqw;
+      vertical-align: -0.05cqw;
+    }
+
+    .auth-legend .swatch.gate {
+      background: #0f766e;
+    }
+
+    .auth-legend .swatch.flag {
+      background: var(--stop);
+    }
+
+    .takeaway-panel {
+      margin-top: 1.125cqw;
+      padding: 1.125cqw 1.375cqw;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.07), rgba(255, 255, 255, 0.92));
+      display: flex;
+      gap: 1cqw;
+      align-items: flex-start;
+    }
+
+    .takeaway-panel .badge {
+      flex: none;
+      margin-top: 0.15cqw;
+    }
+
+    .takeaway-panel p {
+      margin: 0;
+      font-size: 1.05cqw;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+
     .cards-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -892,6 +1020,12 @@
       text-align: center;
     }
 
+    .slide[data-title="Challenge vs importance"] > div {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
     .footer-nav {
       position: absolute;
       left: 1.75cqw;
@@ -1047,6 +1181,20 @@
       line-height: 1.45;
     }
 
+    .phase-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75cqw;
+    }
+
+    .phase-title-row .badge {
+      flex: 0 0 auto;
+    }
+
+    .phase-title-row p {
+      margin: 0;
+    }
+
     .small-flow {
       gap: 0.75cqw;
     }
@@ -1103,12 +1251,98 @@
       line-height: 1.55;
     }
 
-    .accent-bar {
-      width: 5.25cqw;
-      height: 0.375cqw;
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25cqw;
+      margin-top: 1.5cqw;
+      flex: 1;
+    }
+
+    .compare-grid .split-panel {
+      padding: 1.5cqw 1.625cqw 1.75cqw;
+      box-shadow: 0 0.75cqw 2.25cqw rgba(27, 47, 84, 0.08);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .point-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25cqw;
+      margin-top: 1.25cqw;
+      flex: 1;
+      justify-content: space-evenly;
+    }
+
+    .point {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875cqw;
+      min-height: 4.75cqw;
+    }
+
+    .compare-grid .badge {
+      font-size: 1.05cqw;
+      padding: 0.625cqw 1cqw;
+    }
+
+    .point-icon {
+      flex: 0 0 auto;
+      width: 2.75cqw;
+      height: 2.75cqw;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      margin-bottom: 1.125cqw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .point-icon svg {
+      width: 1.375cqw;
+      height: 1.375cqw;
+    }
+
+    .point strong {
+      display: block;
+      font-size: 1.125cqw;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25cqw;
+    }
+
+    .point p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95cqw;
+      line-height: 1.5;
+    }
+
+    .split-panel.panel-teal .point-icon {
+      background: rgba(14, 165, 183, 0.12);
+      color: #0f766e;
+    }
+
+    .split-panel.panel-blue .point-icon {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .strike {
+      text-decoration: line-through;
+      text-decoration-color: var(--stop);
+      text-decoration-thickness: 0.12em;
+      opacity: 0.6;
+    }
+
+    .link-strong {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-color: rgba(37, 99, 235, 0.4);
+      text-underline-offset: 0.15em;
+    }
+
+    .link-strong:hover {
+      text-decoration-color: var(--accent);
     }
 
     .streamline {
@@ -1157,6 +1391,7 @@
       .two-col,
       .demo-band,
       .split-grid,
+      .compare-grid,
       .cards-3,
       .keywords {
         grid-template-columns: 1fr;
@@ -1182,12 +1417,38 @@
       }
     }
 
-    .slide[data-title="Title"] h2 {
+    .slide[data-title="Title"] h2,
+    .slide[data-title="Part 2 — Vulnerability Remediation"] h2 {
       max-width: 20ch;
     }
 
-    .slide[data-title="Title"] .subtitle {
+    .slide[data-title="Title"] .subtitle,
+    .slide[data-title="Part 2 — Vulnerability Remediation"] .subtitle {
       max-width: 32ch;
+    }
+
+    .slide[data-title="Challenge vs importance"] .point-icon {
+      width: 3.1cqw;
+      height: 3.1cqw;
+    }
+
+    .slide[data-title="Challenge vs importance"] .point-icon svg {
+      width: 1.55cqw;
+      height: 1.55cqw;
+    }
+
+    .slide[data-title="Challenge vs importance"] .point strong {
+      font-size: 1.25cqw;
+    }
+
+    .slide[data-title="Challenge vs importance"] .point p {
+      font-size: 1.05cqw;
+    }
+
+    .slide[data-title="False positive case"] .key-points li,
+    .slide[data-title="Wrong fix case"] .key-points li {
+      font-size: 1.2cqw;
+      line-height: 1.55;
     }
 
     .slide[data-title="Failure pattern"] .timeline-row {
@@ -1499,6 +1760,340 @@
             </div>
           </div>
         </section>
+
+        <section class="slide part2" data-title="Part 2 — Vulnerability Remediation">
+          <div class="title-slide">
+            <div class="title-hero two-col">
+              <div class="title-stack">
+                <div class="kicker">Part 2</div>
+                <h1 style="font-size: 5cqw; max-width: 15ch;">Vulnerability Finding &amp; Remediation</h1>
+                <p class="subtitle">Using AI to find real security bugs in production code — and ship the fix</p>
+                <div class="meta">
+                  <span class="pill"><span class="mono">Libo Zhou</span></span>
+                </div>
+              </div>
+              <div class="surface hero-visual">
+                <div class="kicker">Core idea</div>
+                <h2 style="max-width: 14ch;">Scan smartly.<br />Fix carefully.</h2>
+                <p class="caption" style="margin-top: 1.125cqw;">Taking a security finding from ticket to merged
+                  remediation, with the human keeping the decisions that matter.</p>
+                <div class="big-flow">
+                  <div class="flow-node">Scan &amp; Analysis</div>
+                  <div class="flow-arrow">→</div>
+                  <div class="flow-node">Fix</div>
+                  <div class="flow-arrow">→</div>
+                  <div class="flow-node">Verify &amp; Close</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="slide part2" data-title="Challenge vs importance">
+          <div>
+            <div class="kicker">Slide 10</div>
+            <h2>A hard problem the industry can't skip.</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Vulnerability remediation is genuinely difficult at
+              enterprise scale — and skipping it has never been the safe option.</p>
+            <div class="compare-grid">
+              <div class="split-panel panel-teal">
+                <div class="badge secondary">The challenge</div>
+                <div class="point-list">
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
+                    </div>
+                    <div>
+                      <strong>Huge codebases</strong>
+                      <p>Years of code across many repos and teams — more than any one person can hold in their head.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>
+                    </div>
+                    <div>
+                      <strong>Extra work, not extra time</strong>
+                      <p>Remediation competes with feature deadlines instead of being part of them.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 6"></polyline><polyline points="14 6 21 6 21 13"></polyline></svg>
+                    </div>
+                    <div>
+                      <strong>Volume outpaces capacity</strong>
+                      <p>Far more findings surface than engineers have time to review.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                    </div>
+                    <div>
+                      <strong>The real boundary is often invisible</strong>
+                      <p>Auth, encryption, and network policy frequently live one layer below the repository a
+                        scanner can see — a gap this deck comes back to directly.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="split-panel panel-blue">
+                <div class="badge">Why it still matters</div>
+                <div class="point-list">
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L22 20 L2 20 Z"></path><line x1="12" y1="9" x2="12" y2="14"></line><line x1="12" y1="17" x2="12" y2="17.01"></line></svg>
+                    </div>
+                    <div>
+                      <strong>Risk doesn't wait</strong>
+                      <p>An unpatched vulnerability is exploitable regardless of available bandwidth.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"></line><line x1="5" y1="7" x2="19" y2="7"></line><path d="M5 7 L2 13 A3 3 0 0 0 8 13 Z"></path><path d="M19 7 L16 13 A3 3 0 0 0 22 13 Z"></path></svg>
+                    </div>
+                    <div>
+                      <strong>A breach costs more than a fix</strong>
+                      <p>In damage, in trust, and in cleanup effort.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path></svg>
+                    </div>
+                    <div>
+                      <strong>It compounds</strong>
+                      <p>New findings arrive continuously — the backlog only grows if the process doesn't scale.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    </div>
+                    <div>
+                      <strong>Attackers automate too</strong>
+                      <p>Manual triage alone brings human pace to a fight the other side is already running at
+                        machine speed.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide part2" data-title="Remediation workflow">
+          <div>
+            <div class="kicker">Slide 11</div>
+            <h2>The end-to-end remediation workflow.</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Complementary automated passes surface and
+              cross-check findings against each other; a human stays the checkpoint at every decision that matters.</p>
+            <div class="split-grid">
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div class="phase-title-row">
+                    <div class="badge">Scan &amp; analysis</div>
+                    <p>Independent scanning passes cross-check each other, get
+                      deduplicated and scored, then anything ambiguous is flagged for a human call.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="scanAnalysis"></div>
+              </div>
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div class="phase-title-row">
+                    <div class="badge secondary">Fix</div>
+                    <p>Findings are triaged by severity, a remediation is chosen
+                      deliberately, implemented narrowly, and covered by a test — then reviewed before it moves on.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="fixPhase"></div>
+              </div>
+              <div class="split-panel">
+                <div class="phase-title">
+                  <div class="phase-title-row">
+                    <div class="badge">Verify &amp; close</div>
+                    <p>The fix is tested, built, deployed, and re-scanned — but only a human verifying it in the
+                      target environment actually closes a finding.</p>
+                  </div>
+                </div>
+                <div class="workflow-track small-flow" data-workflow="verifyPhase"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide part2" data-title="False positive case">
+          <div>
+            <div class="kicker">Slide 12</div>
+            <h2>AI can be confidently wrong. That's why a human signs off.</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Case 1 — a real false positive from the review gates
+              in this deck.</p>
+            <div class="split-panel" style="margin-top: 1.5cqw;">
+              <div class="badge-row" style="margin-bottom: 0.75cqw;">
+                <div class="badge secondary">Case 1 — False positive</div>
+              </div>
+              <ul class="sdd-points key-points" style="margin: 0 0 1.125cqw;">
+                <li><strong>Flagged:</strong> "Missing authorization check on password-unmask operation" — inside a
+                  service that subscribes to an encrypted Kafka topic, decrypts a password field, and writes it
+                  downstream.</li>
+                <li><strong>Reality:</strong> only specific pre-approved service identities can publish or subscribe
+                  to that topic at all — enforced by the broker's access-control list, not by a check in this
+                  repository.</li>
+                <li><strong>Why the model missed it:</strong> it only had this one codebase in view. The real
+                  authorization boundary lives one layer down, in infrastructure this repo never touches — "the
+                  whole project" was in context, "the whole system" was not.</li>
+              </ul>
+              <div class="auth-flow">
+                <div class="flow-node">Producer service</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node gate-node">Broker ACL gate</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">Kafka topic</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node gate-node">Broker ACL gate</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node flagged-node">This service: decrypt → handle → DB</div>
+              </div>
+              <div class="auth-legend">
+                <span><span class="swatch gate"></span>Where authorization actually happens</span>
+                <span><span class="swatch flag"></span>Where the scanner looked, and found nothing</span>
+              </div>
+            </div>
+            <div class="takeaway-panel">
+              <div class="badge secondary">Takeaway</div>
+              <p>Before accepting "missing check," ask where else in the stack that boundary might already be
+                enforced — a network policy, a broker ACL, an API gateway, a service mesh. A scanner that only
+                reads one repository can't answer that question. A human who knows the system's topology can — and
+                a "fix" applied blindly here wouldn't have closed a real gap, it would have bolted a redundant,
+                misleading check onto code that was never the actual boundary.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide part2" data-title="Wrong fix case">
+          <div>
+            <div class="kicker">Slide 13</div>
+            <h2>AI can be confidently wrong. That's why a human signs off.</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Case 2 — a real wrong fix from the review gates in
+              this deck.</p>
+            <div class="split-panel" style="margin-top: 1.5cqw;">
+              <div class="badge-row" style="margin-bottom: 0.75cqw;">
+                <div class="badge">Case 2 — Wrong fix</div>
+              </div>
+              <ul class="sdd-points key-points" style="margin: 0 0 1cqw;">
+                <li><strong>Flagged:</strong> an internal admin REST API for a Kafka-Connect-style pipeline worker
+                  had no authentication in front of it at all — a textbook "Missing Authentication for a Critical
+                  Function" (CWE-306).</li>
+                <li><strong>AI's first fix:</strong> bolt on username + password — a shared secret that now has to
+                  be issued, stored, and rotated for every caller.</li>
+                <li><strong>Root cause — same as Case 1:</strong> the model saw "no authentication" and reached for
+                  the generic textbook answer. It had no visibility into this team's actual convention: the rest of
+                  their Kafka estate already authenticates callers via mutual TLS through the firm's existing
+                  certificate infrastructure — that standard lives in platform config outside the one repo it was
+                  scanning.</li>
+              </ul>
+              <div class="auth-flow" style="justify-content: flex-start;">
+                <div class="flow-node flagged-node"><span>AI's fix: username + password</span><span class="flow-node-sub">shared secret — issued, stored, rotated per caller</span></div>
+                <div class="flow-arrow">vs</div>
+                <div class="flow-node gate-node"><span>Correct fix: mTLS</span><span class="flow-node-sub">client certificate presented via the existing PKI</span></div>
+              </div>
+              <div class="auth-legend">
+                <span>Two different mechanisms: a password is a shared secret sent with the request; an mTLS
+                  certificate proves identity during the TLS handshake itself — no secret travels over the wire.</span>
+              </div>
+            </div>
+            <div class="takeaway-panel">
+              <div class="badge">Takeaway</div>
+              <p>When AI proposes a fix, check whether it matches how the rest of the system already solves the
+                same problem. A textbook-correct answer that ignores local convention doesn't just add a few extra
+                lines — a parallel credential scheme is a whole new secret to issue, store, rotate, and eventually
+                forget about, sitting next to the certificate infrastructure the team already trusts.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide part2" data-title="Learning from the fixes">
+          <div>
+            <div class="kicker">Slide 14</div>
+            <h2>The <span class="strike">boring</span> vulnerability-fix grind pays hidden XP.</h2>
+            <p class="caption" style="margin-top: 0.875cqw;">Point AI at enough findings and it stops being just
+              outsourced labor — it starts handing you a security education on the side.</p>
+            <div class="compare-grid">
+              <div class="split-panel">
+                <div class="badge secondary">Hidden XP #1 — CWE (Common Weakness Enumeration)</div>
+                <div class="point-list">
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="3" x2="12" y2="7"></line><line x1="12" y1="17" x2="12" y2="21"></line><line x1="3" y1="12" x2="7" y2="12"></line><line x1="17" y1="12" x2="21" y2="12"></line></svg>
+                    </div>
+                    <div>
+                      <strong>No more "it's some kind of injection thing"</strong>
+                      <p>The AI names the exact CWE ID behind the finding — e.g. CWE-89 — instead of a vague vibe.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"></path><path d="M4 19.5A2 2 0 0 0 6 21h15"></path></svg>
+                    </div>
+                    <div>
+                      <strong>Every number has a canonical definition</strong>
+                      <p>Look it up at <a href="https://cwe.mitre.org/" target="_blank" rel="noopener" class="mono link-strong">cwe.mitre.org</a> for a precise, searchable writeup — so
+                        "what is this, actually?" has a real answer.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
+                    </div>
+                    <div>
+                      <strong>Nobody knows every vulnerability class — yet</strong>
+                      <p>Not even the pros memorize the whole catalog. Every finding you triage quietly adds one more
+                        entry to yours.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="split-panel">
+                <div class="badge secondary">Hidden XP #2 — CVSS (Common Vulnerability Scoring System)</div>
+                <div class="point-list">
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    </div>
+                    <div>
+                      <strong>A number, not a vibe</strong>
+                      <p>CVSS scores exploitability and impact on a 0.0–10.0 scale, so "this feels bad" turns into
+                        something you can actually compare.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </div>
+                    <div>
+                      <strong>The vector spells out the "why"</strong>
+                      <p>It breaks the score into how easy the bug is to trigger, what access it needs, and what it
+                        compromises.</p>
+                    </div>
+                  </div>
+                  <div class="point">
+                    <div class="point-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <div>
+                      <strong>The Critical / High / Medium bands</strong>
+                      <p><strong>Critical</strong> (9.0–10.0): trivial to exploit, full compromise. <strong>High</strong>
+                        (7.0–8.9): serious impact, but usually needs a precondition. <strong>Medium</strong>
+                        (4.0–6.9): limited impact, or high impact with mitigating factors.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div class="overview" id="overview" aria-hidden="true"></div>
@@ -1549,6 +2144,26 @@
         { title: "Write Failing Unit Tests", desc: "Generate tests first and confirm they fail." },
         { title: "Implement", desc: "Generate the code." },
         { title: "Verify", desc: "Run the unit tests and confirm they pass." }
+      ],
+      scanAnalysis: [
+        { title: "Multi-Pass Scan", desc: "Run complementary automated passes — a fast broad sweep and, for higher-stakes code, a slower structured pass — since each catches different blind spots." },
+        { title: "Cross-Validate", desc: "Treat the passes as independent reviewers: re-verify each survivor from source and trace cross-finding exploit chains." },
+        { title: "Dedupe & Score", desc: "Cluster duplicate claims and score what's left with CVSS." },
+        { title: "Sanity-Check Confidence", desc: "Don't accept uniformly \"confirmed\" verdicts at face value — confidence must trace back to real evidence." },
+        { title: "Flag Ambiguity", desc: "Escalate contradictory or unclear findings to a human.", stop: true }
+      ],
+      fixPhase: [
+        { title: "Triage", desc: "Rank open findings by severity and decide what gets fixed now." },
+        { title: "Choose Approach", desc: "Weigh candidate fixes instead of taking the first suggestion." },
+        { title: "Implement", desc: "Make a minimal, targeted code change scoped to one finding." },
+        { title: "Add Test Coverage", desc: "Cover the fixed behavior with a test." },
+        { title: "Human Review", desc: "An engineer reviews the diff before it proceeds.", stop: true }
+      ],
+      verifyPhase: [
+        { title: "Run Tests & Build", desc: "Confirm existing and new tests pass and the change actually compiles, not just \"looks right\"." },
+        { title: "Deploy & Verify", desc: "Deploy the fix and have a human confirm it behaves as expected in the target environment.", stop: true },
+        { title: "Re-Scan", desc: "Re-run the scan to confirm the finding no longer triggers." },
+        { title: "Document & Close", desc: "Attach the fix and re-scan result to the finding record and mark it resolved." }
       ]
     };
 
@@ -1579,7 +2194,10 @@
       const workflowStartingNumbers = {
         planning: 1,
         implementation: 7,
-        delivery: 12
+        delivery: 12,
+        scanAnalysis: 1,
+        fixPhase: 6,
+        verifyPhase: 11
       };
 
       document.querySelectorAll('[data-workflow]').forEach((node) => {
