@@ -96,3 +96,41 @@ updated documents.
 This final synchronization step keeps the repository teachable: a new student can read the constitution
 and feature files, understand why the code behaves as it does, and reproduce the same workflow for the
 next feature.
+
+## 7. CLI tools and plugins for a more structured SDD workflow
+
+The workflow above is intentionally simple and works well for a small project, but it is still a
+bare-bones version of Spec-Driven Development. If you want more structure, consistency, and automation,
+there are a number of CLI tools and IDE plugins designed to help teams create, review, and track specs
+more deliberately. Their purpose is not to replace the constitution or human judgment; rather, they add
+repeatable templates, command flows, and checklists that make the spec lifecycle easier to manage.
+
+In practice, these tools elevate SDD from "write some planning docs in a folder" to a more disciplined
+workflow: generate the spec, refine the plan, break work into tasks, and keep implementation aligned with
+those artifacts as the project evolves.
+
+Here are a few examples commonly used by teams who want more guardrails around their SDD process:
+
+- Spec Kit — A GitHub-led workflow for turning a request into a clear spec, implementation plan, and
+  task list. It is a good fit when you want a structured, repo-native way to keep requirements and
+  delivery steps aligned. Official repository: https://github.com/github/spec-kit
+
+- SpecIt — A lightweight, spec-first tool that helps teams write clear requirements and organize the
+  work into manageable implementation steps before coding starts. Official repository:
+  https://github.com/specit/specit
+
+- Spec-Kitty — A smaller, opinionated helper for creating structured product specs and task breakdowns
+  without needing to invent your own process from scratch. Official repository:
+  https://github.com/spec-kitty/spec-kitty
+
+- Superpowers — A broader workflow and prototyping toolkit that can be useful when you want more
+  structure around planning artifacts, iteration, and task management in a spec-first process. Official
+  repository: https://github.com/Superpowers/superpowers
+
+- Other options — Many teams also build their own lightweight wrappers around GitHub Issues, markdown
+  task tracking, or CLI scripts to enforce the same lifecycle: constitution, spec, plan, tasks, TDD,
+  review, and implementation. The goal is always the same: keep the specification visible and reviewable.
+
+These tools are optional. The essential idea is still the same as this project: requirements come first,
+implementation follows the agreed plan, and the repository remains understandable by reading the spec and
+its tasks rather than guessing from code alone.
